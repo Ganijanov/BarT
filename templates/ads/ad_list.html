@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Объявления</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f6f9;
+      padding: 30px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    form {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 8px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      padding: 8px 16px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    .ad-item {
+      border-bottom: 1px solid #eee;
+      padding: 10px 0;
+    }
+
+    .ad-item strong {
+      color: #2c3e50;
+    }
+
+    .ad-actions a {
+      margin-left: 10px;
+      color: #3498db;
+      text-decoration: none;
+    }
+
+    .ad-actions a:hover {
+      text-decoration: underline;
+    }
+
+    .pagination {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .create-btn {
+      display: inline-block;
+      margin-bottom: 20px;
+      background-color: #2ecc71;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 5px;
+      text-decoration: none;
+    }
+
+    .create-btn:hover {
+      background-color: #27ae60;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Объявления</h1>
+
+    <form method="get">
+      <input type="text" name="q" placeholder="Поиск..." >
+      <input type="text" name="category" placeholder="Категория" >
+      <input type="text" name="condition" placeholder="Состояние" >
+      <button type="submit">Найти</button>
+    </form>
+
+    <a href="{% url 'ad_create' %}" class="create-btn">+ Создать объявление</a>
+
+    {% for ad in page_obj %}
+      <div class="ad-item">
+        <strong>{{ ad.title }}</strong> — {{ ad.description }}<br>
+        <small>Дата: {{ ad.created_at }}</small>
+        <div class="ad-actions">
+          {% if ad.user == request.user %}
+            <a href="{% url 'ad_edit' ad.id %}">Редактировать</a>
+            <a href="{% url 'ad_delete' ad.id %}">Удалить</a>
+          {% else %}
+            <a href="{% url 'create_proposal' ad.id %}">Предложить обмен</a>
+          {% endif %}
+        </div>
+      </div>
+    {% empty %}
+      <p>Объявлений нет.</p>
+    {% endfor %}
+
+    <div class="pagination">
+      {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}&q={{ query }}&category={{ category }}&condition={{ condition }}">← Назад</a>
+      {% endif %}
+    
+      <span>Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
+    
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}&q={{ query }}&category={{ category }}&condition={{ condition }}">Вперёд →</a>
+      {% endif %}
+    </div>
+  </div>
+</body>
+</html>
