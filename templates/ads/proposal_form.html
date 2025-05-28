@@ -58,13 +58,12 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>Предложение обмена от «{{ ad_sender.title }}»</h2>
-    <form method="post">
-      {% csrf_token %}
-      {{ form.as_p }}
-      <button type="submit">Отправить предложение</button>
-    </form>
+ <h2>Предложение обмена на "{{ ad_receiver.title }}"</h2>
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Отправить предложение</button>
+</form>
   </div>
 </body>
 </html>

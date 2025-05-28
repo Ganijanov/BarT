@@ -8,7 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.core.paginator import Paginator
 from .forms import RegisterForm
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
 
 
 
@@ -83,25 +83,31 @@ def ad_delete(request, ad_id):
     return render(request, 'ads/ad_confirm_delete.html', {'ad': ad})
 
 
+
 @login_required
 def create_proposal(request, ad_id):
-    ad_sender = get_object_or_404(Ad, id=ad_id)
-
-    if ad_sender.user != request.user:
-        return HttpResponseForbidden("Вы можете предлагать обмен только от своих объявлений.")
+    ad_receiver = get_object_or_404(Ad, id=ad_id)
+    user_ads = Ad.objects.filter(user=request.user)
 
     if request.method == 'POST':
         form = ExchangeProposalForm(request.POST)
+        if 'ad_sender' in form.fields:
+            form.fields['ad_sender'].queryset = user_ads
         if form.is_valid():
             proposal = form.save(commit=False)
-            proposal.ad_sender = ad_sender
+            proposal.ad_receiver = ad_receiver
             proposal.status = 'ожидает'
             proposal.save()
             return redirect('ad_list')
     else:
         form = ExchangeProposalForm()
+        if 'ad_sender' in form.fields:
+            form.fields['ad_sender'].queryset = user_ads
 
-    return render(request, 'ads/proposal_form.html', {'form': form, 'ad_sender': ad_sender})
+    return render(request, 'ads/proposal_form.html', {
+        'form': form,
+        'ad_receiver': ad_receiver
+    })
 
 
 
@@ -138,3 +144,8 @@ def register(request):
     else:
         form = RegisterForm()
     return render(request, 'ads/register.html', {'form': form})
+
+
+def custom_logout(request):
+    logout(request)  # очищает сессию
+    return redirect('login')  # редирект на страницу входа

@@ -19,7 +19,6 @@ class ExchangeProposal(models.Model):
         ('принята', 'Принята'),
         ('отклонена', 'Отклонена'),
     ]
-
     ad_sender = models.ForeignKey(Ad, related_name='sent_proposals', on_delete=models.CASCADE)
     ad_receiver = models.ForeignKey(Ad, related_name='received_proposals', on_delete=models.CASCADE)
     comment = models.TextField()
